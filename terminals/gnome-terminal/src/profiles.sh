@@ -12,13 +12,13 @@ else
            cut -d: -f1))
 fi
 
-
 create_new_profile() {
+  new_profile_name=$1
   profile_id="$(uuidgen)"
   dconf write $dconfdir/default "'$profile_id'"
   dconf write $dconfdir/list "['$profile_id']"
   profile_dir="$dconfdir/:$profile_id"
-  dconf write $profile_dir/visible-name "'Default'"
+  dconf write $profile_dir/visible-name "'$new_profile_name'"
 }
 
 get_uuid() {
@@ -106,7 +106,22 @@ interactive_select_profile() {
 check_empty_profile() {
   if [ "$profiles" = "" ]
     then interactive_new_profile
-    create_new_profile
+    create_new_profile $1
     profiles=($(dconf list $dconfdir/ | grep ^: | sed 's/\///g'))
   fi
+}
+
+copy_profile(){
+  dconf_profile_list=$(dconf read $dconfdir/list)
+  profile_id_to_copy=$1
+  profile_copy_id="$(uuidgen)"
+  old_name=$(dconf read $dconfdir/${profile_id_to_copy}/visible-name | sed "s/'//g")
+  profile_copy_name=${old_name}_backup
+  profile_dir="$dconfdir/$profile_id_to_copy/"
+  tmpfile=$(mktemp)
+  dconf dump $profile_dir > $tmpfile
+  sed -i "1 s/^.*$/\[\:${profile_copy_id}\]/" $tmpfile
+  sed -i "s/${old_name}/${profile_copy_name}/" $tmpfile
+  dconf load $dconfdir/ < $tmpfile
+  dconf write $dconfdir/list "$(echo $dconf_profile_list | sed "s/\]/, '$profile_copy_id'\]/")"
 }

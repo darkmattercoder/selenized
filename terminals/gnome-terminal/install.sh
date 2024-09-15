@@ -41,6 +41,12 @@ set_profile_colors() {
   if [ "$newGnome" = "1" ]
     then local profile_path=$dconfdir/$profile
 
+    echo
+    echo "Backing up existing profile $profile to ${profile}_backup"
+    echo
+
+    copy_profile $profile
+
     # set color palette
     dconf write $profile_path/palette "$(echo $PALETTE | to_dconf)"
 
@@ -103,7 +109,7 @@ interactive_confirm() {
   echo    "  Scheme:  Selenized $scheme"
   echo    "  Profile: $(get_profile_name $profile) ($profile)"
   echo
-  echo    "Are you sure you want to overwrite the selected profile?"
+  echo    "Are you sure you want to overwrite the selected profile? The original Profile $profile will be backed up as ${profile}_backup"
   echo -n "(YES to continue) "
 
   read confirmation
@@ -158,7 +164,7 @@ if [[ -n "$profile" ]]
   validate_profile $profile
 else
   if [ "$newGnome" = "1" ]
-    then check_empty_profile
+    then check_empty_profile Default
   fi
   interactive_select_profile "${profiles[@]}"
   interactive_confirm
