@@ -32,7 +32,6 @@ get_uuid() {
         return 0
       fi
     done
-  echo "$profile_name"
 }
 
 validate_profile() {

@@ -158,8 +158,15 @@ else
 fi
 
 if [[ -n "$profile" ]]
+  desired_profile_name="$profile"
   then if [ "$newGnome" = "1" ]
     then profile="$(get_uuid "$profile")"
+    echo "Got profile id $profile for $desired_profile_name"
+    if [[ -z "$profile" ]]; then
+	echo "Profile $desired_profile_name not existing, creating..."
+	create_new_profile $desired_profile_name
+	profile="$(get_uuid "$profile")"
+    fi
   fi
   validate_profile $profile
 else
