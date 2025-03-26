@@ -5,12 +5,16 @@ dircolors_checked=false
 
 
 declare -a profiles
+
+fill_profile_array(){
+echo "(Re-)fill profiles array"
 if [ "$newGnome" = "1" ]
   then profiles=($(dconf list $dconfdir/ | grep ^: | sed 's/\///g'))
 else
   profiles=($(gconftool-2 -R $gconfdir | grep $gconfdir | cut -d/ -f5 |  \
            cut -d: -f1))
 fi
+}
 
 create_new_profile() {
   new_profile_name=$1
@@ -19,6 +23,7 @@ create_new_profile() {
   dconf write $dconfdir/list "['$profile_id']"
   profile_dir="$dconfdir/:$profile_id"
   dconf write $profile_dir/visible-name "'$new_profile_name'"
+  fill_profile_array
 }
 
 get_uuid() {
@@ -36,6 +41,7 @@ get_uuid() {
 
 validate_profile() {
   local profile=$1
+  echo "Validating profile <$profile>"
   in_array $profile "${profiles[@]}" || die "$profile is not a valid profile" 3
 }
 
@@ -106,7 +112,6 @@ check_empty_profile() {
   if [ "$profiles" = "" ]
     then interactive_new_profile
     create_new_profile $1
-    profiles=($(dconf list $dconfdir/ | grep ^: | sed 's/\///g'))
   fi
 }
 
@@ -124,3 +129,5 @@ copy_profile(){
   dconf load $dconfdir/ < $tmpfile
   dconf write $dconfdir/list "$(echo $dconf_profile_list | sed "s/\]/, '$profile_copy_id'\]/")"
 }
+
+fill_profile_array

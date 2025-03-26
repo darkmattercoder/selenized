@@ -165,7 +165,8 @@ if [[ -n "$profile" ]]
     if [[ -z "$profile" ]]; then
 	echo "Profile $desired_profile_name not existing, creating..."
 	create_new_profile $desired_profile_name
-	profile="$(get_uuid "$profile")"
+	profile="$(get_uuid "$desired_profile_name")"
+	echo "Got uuid <$profile> for profile with name <$desired_profile_name>"
     fi
   fi
   validate_profile $profile

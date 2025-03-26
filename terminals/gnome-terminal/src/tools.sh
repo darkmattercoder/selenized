@@ -23,6 +23,7 @@ die() {
 in_array() {
   local e
   for e in "${@:2}"; do [[ $e == $1 ]] && return 0; done
+  echo "Did not find profile $1 in profile list"
   return 1
 }
 
